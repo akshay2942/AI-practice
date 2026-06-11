@@ -1,0 +1,75 @@
+---
+description: Test layer patterns for pytest scenarios
+globs: tests/**/*.py
+alwaysApply: false
+---
+
+# Test Layer Patterns
+
+## Core Principle
+
+Tests contain **all assertions** and use **service fixtures only**.
+
+## Structure
+
+```python
+import pytest
+
+@pytest.mark.smoke
+class TestFeature:
+    """Tests for feature X."""
+
+    @pytest.mark.core
+    def test_positive_case(self, auth_service):
+        result = auth_service.login_as_standard_user()
+
+        assert result.is_loaded()
+        assert result.get_page_heading() == "Products"
+```
+
+## Fixtures
+
+Use fixtures from `conftest.py`:
+
+- `auth_service` — login/logout flows
+- `inventory_service` — catalog flows
+- `logged_in_page` — skip login setup when only post-login UI matters
+
+## Markers
+
+| Marker | Purpose |
+|--------|---------|
+| `smoke` | Quick validation |
+| `regression` | Full regression |
+| `core` | Essential targeted runs (`make test-core`) |
+
+## Arrange / Act / Assert
+
+1. **Arrange** — use fixture or call service setup
+2. **Act** — invoke service method
+3. **Assert** — use pytest `assert` with clear intent
+
+## Anti-Patterns
+
+```python
+# WRONG — page object for flows
+def test_login(self, page):
+    login = LoginPage(page)
+    login.enter_username("user")
+
+# WRONG — raw Playwright in tests
+def test_login(self, page):
+    page.locator("[data-test='username']").fill("user")
+
+# CORRECT — service fixture
+def test_login(self, auth_service):
+    inventory = auth_service.login_as_standard_user()
+    assert inventory.is_loaded()
+```
+
+## Run Single Test
+
+```bash
+make test-case NAME=test_standard_user_can_login
+pytest -k test_standard_user_can_login --headed --browser-channel=chrome
+```

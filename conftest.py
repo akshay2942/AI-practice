@@ -1,5 +1,7 @@
 """Pytest fixtures wiring Playwright to the three-layer architecture."""
 
+pytest_plugins = ["pytest_playwright"]
+
 import pytest
 from playwright.sync_api import Page
 

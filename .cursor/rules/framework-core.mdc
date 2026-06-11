@@ -1,0 +1,52 @@
+---
+description: Core 3-layer Playwright + pytest architecture rules
+alwaysApply: true
+---
+
+# Framework Core Rules
+
+## Architecture
+
+**Test → Service → Page → Playwright**
+
+| Layer | Path | Responsibility |
+|-------|------|----------------|
+| Test | `tests/` | Assertions and scenarios only |
+| Service | `services/` | Business workflows across pages |
+| Page | `pages/` | Locators and atomic UI interactions |
+| Config | `config/settings.py` | URLs, credentials, timeouts |
+
+## Critical Rules
+
+1. **No assertions in page or service layers** — return data/booleans; tests assert.
+2. **Tests use services only** — not page objects for flows (type checks like `isinstance(x, LoginPage)` are OK).
+3. **Boolean methods** use `is_*`, `has_*`, or `can_*` — not `verify_*` or `check_*`.
+4. **Pages: one interaction per method** — services compose multi-step flows.
+5. **No hardcoded waits** — no `time.sleep()`; use Playwright waits and `DEFAULT_TIMEOUT_MS` from config.
+6. **Pages extend `BasePage`** — services are plain classes holding page references.
+
+## Configuration
+
+Environment variables (see `config/settings.py`):
+
+| Variable | Default |
+|----------|---------|
+| `BASE_URL` | `https://www.saucedemo.com` |
+| `TEST_USER` | `standard_user` |
+| `TEST_PASSWORD` | `secret_sauce` |
+| `DEFAULT_TIMEOUT_MS` | `10000` |
+
+## Run Commands
+
+```bash
+pytest                          # all tests
+pytest -m core                  # core suite
+pytest -k <test_name>           # by name
+make test-case NAME=<test_name> # Makefile wrapper
+```
+
+## Fixtures (conftest.py)
+
+- `auth_service` — authentication workflows
+- `inventory_service` — catalog workflows
+- `logged_in_page` — pre-authenticated page

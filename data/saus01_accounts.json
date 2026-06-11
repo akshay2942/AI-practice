@@ -1,0 +1,13 @@
+{
+  "test_case_id": "Saus01",
+  "base_url": "https://www.saucedemo.com/",
+  "password": "secret_sauce",
+  "accounts": [
+    {"username": "standard_user", "expected_success": true},
+    {"username": "locked_out_user", "expected_success": false},
+    {"username": "problem_user", "expected_success": true},
+    {"username": "performance_glitch_user", "expected_success": true},
+    {"username": "error_user", "expected_success": true},
+    {"username": "visual_user", "expected_success": true}
+  ]
+}

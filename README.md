@@ -28,11 +28,20 @@ pip install -r requirements.txt
 playwright install chromium
 ```
 
+**Important:** Run tests from the virtualenv so the Playwright `page` fixture is available:
+
+```bash
+source .venv/bin/activate
+# or prefix commands: .venv/bin/pytest ...
+```
+
+If you see `fixture 'page' not found`, you are using system Python instead of `.venv`.
+
 ## Run tests
 
 ```bash
-# All tests (headless)
-pytest
+# All tests (headless) — use venv pytest
+.venv/bin/pytest
 
 # Headed browser
 pytest --headed
@@ -78,7 +87,7 @@ pytest -k test_catalog_lists_products
 pytest tests/test_auth.py
 ```
 
-**Available test names:** `test_standard_user_can_login`, `test_locked_out_user_sees_error`, `test_user_can_logout`, `test_catalog_lists_products`, `test_catalog_has_six_items`
+**Available test names:** `test_standard_user_can_login`, `test_locked_out_user_sees_error`, `test_user_can_logout`, `test_catalog_lists_products`, `test_catalog_has_six_items`, `test_add_item_to_cart`
 
 ### Markers
 
@@ -107,10 +116,60 @@ Environment variables (optional):
 | `TEST_PASSWORD` | `secret_sauce` |
 | `DEFAULT_TIMEOUT_MS` | `10000` |
 
+## AI-assisted development
+
+Cursor rules and skills in `.cursor/` guide the AI agent when working on this framework.
+
+### Rules (`.cursor/rules/`)
+
+| Rule | Applies when |
+|------|----------------|
+| `framework-core.mdc` | Always — 3-layer architecture and critical rules |
+| `workflow.mdc` | Always — plan before large changes, summarize after |
+| `test-patterns.mdc` | Editing `tests/**/*.py` |
+| `page-patterns.mdc` | Editing `pages/**/*.py` |
+| `service-patterns.mdc` | Editing `services/**/*.py` |
+
+### Skills (`.cursor/skills/`)
+
+| Skill | Use for |
+|-------|---------|
+| `create-test` | Adding new test scenarios |
+| `fix-test` | Debugging failing tests |
+| `review-code` | Framework compliance before commit |
+| `fix-lints` | Optional ruff formatting/linting |
+| `explore-codebase` | Understanding project structure |
+| `refactor-safely` | Renames and safe refactors |
+| `debug-issue` | Tracing failures test → service → page |
+| `review-changes` | Git diff review with test verification |
+
+### Example prompts
+
+- "Create a test for adding an item to the cart"
+- "Fix `test_standard_user_can_login` — it's timing out"
+- "Review my changes for framework compliance"
+- "How does the login flow work in this project?"
+
+### Helper scripts
+
+```bash
+# Find a test by name
+python .cursor/skills/fix-test/scripts/find_test.py --test test_standard_user_can_login
+
+# Check framework compliance
+python .cursor/skills/review-code/scripts/check_compliance.py --git-diff
+python .cursor/skills/review-code/scripts/check_compliance.py --path tests/ --path services/ --path pages/
+```
+
+> **Note:** `.claude/` is legacy and gitignored. Use `.cursor/` for AI configuration in this project.
+
 ## Project layout
 
 ```
 .
+├── .cursor/
+│   ├── rules/          # Cursor AI rules
+│   └── skills/         # Cursor AI skills + helper scripts
 ├── config/
 │   └── settings.py
 ├── pages/

@@ -1,0 +1,79 @@
+---
+description: Page object patterns for atomic UI interactions
+globs: pages/**/*.py
+alwaysApply: false
+---
+
+# Page Layer Patterns
+
+## Core Principle
+
+Page objects contain **only atomic UI actions**. No business logic, no assertions.
+
+## Required Inheritance
+
+```python
+from playwright.sync_api import Page
+from pages.base_page import BasePage
+
+class MyPage(BasePage):
+    """Page object for feature X."""
+
+    SUBMIT_BUTTON = "[data-test='submit']"
+
+    def __init__(self, page: Page) -> None:
+        super().__init__(page)
+```
+
+## Locators
+
+- Prefer `[data-test='...']` attributes (Sauce Demo convention)
+- Define locators as class-level constants
+- Use `self.page.locator()` or `BasePage.locator()`
+
+## Method Categories
+
+**Actions** — return `None` or `self` for chaining:
+
+```python
+def enter_username(self, username: str) -> "LoginPage":
+    self.page.locator(self.USERNAME_INPUT).fill(username)
+    return self
+```
+
+**Getters** — return data:
+
+```python
+def get_error_text(self) -> str:
+    return self.page.locator(self.ERROR_MESSAGE).inner_text()
+```
+
+**Booleans** — use `is_*`, `has_*`, `can_*`:
+
+```python
+def is_error_displayed(self) -> bool:
+    return self.page.locator(self.ERROR_MESSAGE).is_visible()
+```
+
+## Anti-Patterns
+
+```python
+# WRONG — assertion in page layer
+def verify_loaded(self) -> None:
+    if not self.is_loaded():
+        raise AssertionError("Not loaded")
+
+# WRONG — multi-step orchestration
+def search_and_select(self, query: str) -> None:
+    self.fill_search(query)
+    self.click_search()
+    self.click_first_result()
+
+# CORRECT — single atomic action
+def click_search(self) -> None:
+    self.page.locator(self.SEARCH_BUTTON).click()
+```
+
+## BasePage Helpers
+
+Use `navigate()`, `get_title()`, `wait_for_url()`, `locator()`, `is_visible()` from `pages/base_page.py`.

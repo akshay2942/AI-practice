@@ -21,3 +21,8 @@ class InventoryService:
     def get_product_count_for_standard_user(self) -> int:
         self.view_catalog_as_standard_user()
         return self.inventory_page.get_product_count()
+
+    def add_backpack_to_cart_as_standard_user(self) -> int:
+        self.auth_service.login_as_standard_user()
+        self.inventory_page.click_add_backpack_to_cart()
+        return self.inventory_page.get_cart_badge_count()

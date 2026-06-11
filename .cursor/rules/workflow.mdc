@@ -1,0 +1,44 @@
+---
+description: Engineering workflow for code changes
+alwaysApply: true
+---
+
+# Engineering Workflow
+
+## Before Making Changes
+
+1. Analyze existing architecture (tests → services → pages)
+2. Identify impacted files
+3. For large refactors, explain plan before implementing
+
+## Pre-Implementation Output
+
+For non-trivial changes, state:
+
+- Files to modify and why
+- Architecture impact
+- Risks and backward compatibility
+
+## Post-Implementation Summary
+
+After changes, summarize:
+
+- Files modified
+- Architecture impact
+- How to verify (`pytest -m core` or specific test name)
+
+## Implementation Discipline
+
+- Prefer incremental changes
+- Match existing conventions in `pages/`, `services/`, `tests/`
+- Reuse existing page objects and services
+- Avoid duplicate abstractions
+- Keep functions single-responsibility
+
+## Testing Expectations
+
+When implementing changes:
+
+- Identify impacted test areas
+- Suggest missing tests if coverage gaps exist
+- Run `pytest -m core` after substantive changes
